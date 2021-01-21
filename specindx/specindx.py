@@ -89,6 +89,9 @@ def get_freq(f):
         output = output.split('FREQ-LSR')[1].split()[1]
     elif "FREQ" in output:
         output = output.split('FREQ')[1].split()[1]
+    elif "SPECLNMF" in output:
+        # Freaking meerkat with its weird lables!
+        output = output.split('SPECLNMF')[1].split()[1]
     else:
         cmd = "gethd in=%s/restfreq 2>/dev/null"%f
         pcmd = os.popen(cmd)
