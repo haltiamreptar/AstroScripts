@@ -80,18 +80,22 @@ def get_res_details(f):
 
 def get_freq(f):
     """ gets image obsrvation frequency, either from the reference pix of
-    the frequency axis, or if not available then the restfreq image item """
+    the frequency axis, or if not available then the restfreq image item
+
+    meerkat is weird, axis is labeled SPECLNMF and is in Hz not GHz as the rest of
+    the world seems to be!
+    """
     cmd = "prthd in=%s"%(f)
     pcmd = os.popen(cmd)
     output = pcmd.read()
     print(output)
     if "FREQ-LSR" in output:
-        output = output.split('FREQ-LSR')[1].split()[1]
+        output = float(output.split('FREQ-LSR')[1].split()[1])
     elif "FREQ" in output:
-        output = output.split('FREQ')[1].split()[1]
+        output = float(output.split('FREQ')[1].split()[1])
     elif "SPECLNMF" in output:
-        # Freaking meerkat with its weird lables!
-        output = output.split('SPECLNMF')[1].split()[1]
+        # Freaking meerkat with its weird lables! and units of HZ
+        output = float(output.split('SPECLNMF')[1].split()[1])/1e9
     else:
         cmd = "gethd in=%s/restfreq 2>/dev/null"%f
         pcmd = os.popen(cmd)
