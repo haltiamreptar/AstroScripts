@@ -20,13 +20,13 @@ __version__="0.2"
 
 from docopt import docopt
 import sys
-
+import os
 
 import astropy.io.fits as f
 import astropy.wcs as w
 import numpy as np
 
-stokes=['I','Q','U','V']
+stokes=['','I','Q','U','V']
 
 
 
@@ -49,6 +49,30 @@ def drop(input, output):
     out.header.update(wcs.celestial.to_header())
     out.header['HISTORY']="fits file updated by: " + __file__ + " " + __version__
     out.header["HISTORY"]="command: " + ' '.join(sys.argv)
+    ## stash old value in HISTORY for issue #1
+    # find stokes axis
+    try:
+        stokesAx=list(wcs.wcs.ctype).index('STOKES')
+        # from miriad
+        #ipol = nint(crval + cdelt*(j-crpix))
+        ipol=int(wcs.wcs.crval[stokesAx] +
+                 wcs.wcs.cdelt[stokesAx] * (inp.data.shape[len(inp.data.shape)-stokesAx-1]-wcs.wcs.crpix[stokesAx]))
+        out.header["HISTORY"]="OLD STOKES: " + stokes[ipol]
+    except ValueError:
+        print("No stokes axis to stash")
+    try:
+        stokesAx=list(wcs.wcs.ctype).index('FREQ')
+        print(stokesAx)
+        # from miriad
+        #ipol = nint(crval + cdelt*(j-crpix))
+        ipol=(wcs.wcs.crval[stokesAx] +
+                 wcs.wcs.cdelt[stokesAx] * (inp.data.shape[len(inp.data.shape)-stokesAx-1]-wcs.wcs.crpix[stokesAx]))
+        print(ipol)
+
+        out.header["HISTORY"]="OLD FREQ: %g" % ipol
+        out.header['RESTFREQ']=ipol
+    except ValueError:
+        print("No stokes axis to stash")
     # write it out
     out.writeto(output)
 
@@ -67,7 +91,7 @@ if __name__ == "__main__":
     if arguments['-o']:
         output=arguments['-o']
     else:
-        output='.'.join(arguments['INPUT'].split('.')[:-1])+'-'+command+'.fits'
-
+        output='.'.join(os.path.basename(arguments['INPUT']).split('.')[:-1])+'-'+command+'.fits'
+    print(output)
     if arguments['drop']:
         drop(arguments['INPUT'],output)
