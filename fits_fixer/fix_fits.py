@@ -3,6 +3,8 @@
 
 A script to modify fits files, for various use cases.
 
+Only operates on the first HDU, others will be silently dropped.
+
 Usage:
     fix_fits.py drop INPUT [ -o FILE ]
 
@@ -24,39 +26,35 @@ import astropy.io.fits as f
 import astropy.wcs as w
 import numpy as np
 
-def stuff():
-    outf='.'.join(sys.argv[1].split('.')[0:-1])+"-fixed.fits"
-    freq=float(sys.argv[2])
-    beam=float(sys.argv[3])
-    print(f"outf:{outf}\tfreq:{freq}\tbeam:{beam}")
-
-    #exit()
-    t1=f.open(sys.argv[1])
-    wcs=w.WCS(t1[0].header)
-    wcs=w.utils.add_stokes_axis_to_wcs(wcs,0)
-    wcs=w.utils.add_stokes_axis_to_wcs(wcs,0)
-
-
-    wcs.wcs.ctype[0]='FREQ'
-    wcs.wcs.cname[0]='FREQ'
-    wcs.wcs.cunit[0]='Hz'
-    wcs.wcs.crval[0]=freq
-    wcs.wcs.crval[1]=0
-    wcs=wcs.reorient_celestial_first()
-
-    d=np.expand_dims(np.expand_dims(t1[0].data,0),0)
-
-    newf=f.PrimaryHDU(data=d)
-    newf.header.update(wcs.to_header())
-    newf.header['bmaj']=beam/3600.
-    newf.header['bmin']=beam/3600.
-    newf.header['bpa']=0.
-    newf.header['bunit']='JY/BEAM'
-
-    newf.writeto(outf)
+def drop(input, output):
+    # read in first hdu of fits file
+    inp=f.open(input)[0]
+    # create a wcs object
+    wcs=w.WCS(inp.header)
+    # drop the degenerate axes
+    d=inp.data.squeeze()
+    # build new fits file with data
+    out=f.PrimaryHDU(data=d)
+    # add just the celestial header back
+    out.header.update(wcs.celestial.to_header())
+    # write it out
+    out.writeto(output)
 
 
 
 if __name__ == "__main__":
     arguments=docopt(__doc__,version="%s -- %s"%(__file__,__version__))
     print(arguments)
+
+
+
+    if arguments['drop']:
+        command='drop'
+
+    if arguments['-o']:
+        output=arguments['-o']
+    else:
+        output='.'.join(arguments['INPUT'].split('.')[:-1])+'-'+command+'.fits'
+
+    if arguments['drop']:
+        drop(arguments['INPUT'],output)
