@@ -16,7 +16,7 @@ Options:
 
 
 __author__="Dr Evan Crawford (e.crawford@westernsydeny.edu.au)"
-__version__="0.1"
+__version__="0.2"
 
 from docopt import docopt
 import sys
@@ -27,6 +27,12 @@ import astropy.wcs as w
 import numpy as np
 
 def drop(input, output):
+    """
+    Drops the degenrate (i. e. length 1 ) axes from fits files
+    generated from casa & miriad
+
+
+    """
     # read in first hdu of fits file
     inp=f.open(input)[0]
     # create a wcs object
@@ -37,17 +43,20 @@ def drop(input, output):
     out=f.PrimaryHDU(data=d)
     # add just the celestial header back
     out.header.update(wcs.celestial.to_header())
+    out.header['HISTORY']="fits file updated by: " + __file__ + " " + __version__
+    out.header["HISTORY"]="command: " + ' '.join(sys.argv)
     # write it out
     out.writeto(output)
 
 
 
 if __name__ == "__main__":
+
+    ## Grab docopt arguments
     arguments=docopt(__doc__,version="%s -- %s"%(__file__,__version__))
-    print(arguments)
 
-
-
+    # make a decision not sure I like this yet, need to add extra commands
+    # to see if its bad
     if arguments['drop']:
         command='drop'
 
