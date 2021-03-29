@@ -26,6 +26,10 @@ import astropy.io.fits as f
 import astropy.wcs as w
 import numpy as np
 
+stokes=['I','Q','U','V']
+
+
+
 def drop(input, output):
     """
     Drops the degenrate (i. e. length 1 ) axes from fits files
