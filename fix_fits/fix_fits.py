@@ -7,17 +7,22 @@ Only operates on the first HDU, others will be silently dropped.
 
 Usage:
     fix_fits.py drop INPUT [ -o FILE ]
-    fix_fits.py beam INPUT [ -o FILE ] BMAJ BMIN BPA
+    fix_fits.py beam INPUT [ -o FILE ] BMAJ BMIN  BPA
+
 
 Options:
     -h --help  Show this message.
     -o FILE  if not specified then name is input-command.fits
     -v --version  Display version information
+
+
+Units for BMAJ BMIN etc can be specified with a , eg 45,arcsec
+BMAJ and BMIN default to arcsec, BPA degrees.
 """
 
 
 __author__="Dr Evan Crawford (e.crawford@westernsydeny.edu.au)"
-__version__="0.2"
+__version__="0.3"
 
 from docopt import docopt
 import sys
@@ -25,12 +30,32 @@ import os
 
 import astropy.io.fits as f
 import astropy.wcs as w
+import astropy.units as u
 import numpy as np
 
 stokes=['','I','Q','U','V']
 
+def extract_unit_value(s,unt):
+    """Extracts a value/unit from a string of the form nnn,uuu
+       u is  used if no unit found
+    """
+    if ',' in s:
+        v=float(s.split(',')[0])
+        unt=u.Unit(s.split(',')[1])
+    else:
+        v=float(s)
+
+    return v * unt
+
+
+
+
 def beam(input,output,BMAJ,BMIN,BPA):
-    pass
+    inp=f.open(input)
+    inp[0].header['bmaj']=BMAJ.to(u.deg).value
+    inp[0].header['bmin']=BMIN.to(u.deg).value
+    inp[0].header['bpa']=BPA.to(u.deg).value
+    inp.writeto(output)
 
 def drop(input, output):
     """
@@ -84,7 +109,7 @@ if __name__ == "__main__":
 
     ## Grab docopt arguments
     arguments=docopt(__doc__,version="%s -- %s"%(__file__,__version__))
-
+    #print(arguments)
     # make a decision not sure I like this yet, need to add extra commands
     # to see if its bad
     if arguments['drop']:
@@ -100,3 +125,8 @@ if __name__ == "__main__":
     print(output)
     if arguments['drop']:
         drop(arguments['INPUT'],output)
+    if arguments['beam']:
+        bmaj=extract_unit_value(arguments['BMAJ'],u.arcsec)
+        bmin=extract_unit_value(arguments['BMIN'],u.arcsec)
+        bpa=extract_unit_value(arguments['BPA'],u.deg)
+        beam(arguments['INPUT'],output,bmaj,bmin,bpa)
