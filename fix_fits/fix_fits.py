@@ -7,6 +7,7 @@ Only operates on the first HDU, others will be silently dropped.
 
 Usage:
     fix_fits.py drop INPUT [ -o FILE ]
+    fix_fits.py beam INPUT [ -o FILE ] BMAJ BMIN BPA
 
 Options:
     -h --help  Show this message.
@@ -28,7 +29,8 @@ import numpy as np
 
 stokes=['','I','Q','U','V']
 
-
+def beam(input,output,BMAJ,BMIN,BPA):
+    pass
 
 def drop(input, output):
     """
@@ -87,6 +89,9 @@ if __name__ == "__main__":
     # to see if its bad
     if arguments['drop']:
         command='drop'
+    elif arguments['beam']:
+        command='beam'
+
 
     if arguments['-o']:
         output=arguments['-o']
