@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """fix_fits.py
 
 A script to undo the compression on HDUs as
@@ -6,6 +6,9 @@ implemented in the .fz file format.
 
 It will not overwirte an existing file.
 
+Requires:
+  astropy
+  docopt
 
 Usage:
     fix_fits.py INPUT [ -o OUTPUT ]
@@ -24,6 +27,7 @@ __author__="Dr Evan Crawford (e.crawford@westernsydeny.edu.au)"
 __version__="0.1"
 
 from docopt import docopt
+import os
 
 from astropy.io import fits
 import astropy.wcs as W
@@ -36,7 +40,7 @@ if __name__ == "__main__":
     if arguments['-o']:
         output=arguments['-o']
     else:
-        output='.'.join(os.path.basename(arguments['INPUT']).split('.')[:-1])+'-uncompressed.fits'
+        output='.'.join(os.path.basename(arguments['INPUT']).split('.')[:-2])+'-uncompressed.fits'
     f=fits.open(arguments['INPUT'])
     newf=fits.HDUList()
     newf.append(f[0])
