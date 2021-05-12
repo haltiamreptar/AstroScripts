@@ -6,11 +6,11 @@ A collection of simple (and not so simple) scripts that have been developed to s
 
 ## fix_fits
 
-This script is for (currently) dropping the degenerate axes from fits files, plans are afoot to add additional features
+This script is for (currently) dropping the degenerate axes from fits files, and to add beam information, plans are afoot to add additional features
 
 ## specindy.py
 
-This is my spectral index calculator, it matches a set of images then does the spectral index.
+This is my spectral index calculator, it matches a set of images then does the spectral index. Requires a working miriad install
 
 ## fz_convert
 
