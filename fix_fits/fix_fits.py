@@ -27,6 +27,7 @@ __version__="0.3"
 from docopt import docopt
 import sys
 import os
+import re
 
 import astropy.io.fits as f
 import astropy.wcs as w
@@ -74,6 +75,16 @@ def drop(input, output):
     out=f.PrimaryHDU(data=d)
     # add just the celestial header back
     out.header.update(wcs.celestial.to_header())
+    ### Check for extra headers to copy over!
+    ## The regex is the ones WCS will deal with!
+    r=re.compile("SIMPLE|BITPIX|NAXIS\d*|EXTEND|WCSAXES|CRPIX\d+|CDELT\d+|CUNIT\d+|CTYPE\d+|CRVAL\d+|PV\d+_\d+|CD\d+_\d+|LONPOLE|LATPOLE|CNAME\d+")
+    for k in inp.header:
+        if not r.match(k):
+            out.header[k]=inp.header[k]
+
+
+
+
     out.header['HISTORY']="fits file updated by: " + __file__ + " " + __version__
     out.header["HISTORY"]="command: " + ' '.join(sys.argv)
     ## stash old value in HISTORY for issue #1
