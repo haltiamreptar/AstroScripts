@@ -110,7 +110,7 @@ def drop(input, output):
         out.header["HISTORY"]="OLD FREQ: %g" % ipol
         out.header['RESTFREQ']=ipol
     except ValueError:
-        print("No stokes axis to stash")
+        print("No freq axis to stash")
     # write it out
     out.writeto(output)
 
