@@ -22,7 +22,7 @@ BMAJ and BMIN default to arcsec, BPA degrees.
 
 
 __author__="Dr Evan Crawford (e.crawford@westernsydeny.edu.au)"
-__version__="0.3"
+__version__="0.4"
 
 from docopt import docopt
 import sys
