@@ -211,6 +211,8 @@ doSy(files,sig2)
 
 doSxy(files,freq,sig2)
 doB(delta,Sx,S)
+## From numerical recipies in fortran eq 15.2.9
+print("Error in alpha is %f"%(math.sqrt(S/delta),))
 """ Fix the Units in the spectral index map """
 cmd = "puthd in=specindx.mir/btype value=spectral_index >/dev/null"
 os.system(cmd)
